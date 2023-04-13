@@ -1,0 +1,14 @@
+[tool.pdm]
+
+[project]
+name = "SerializeJson"
+version = "0.0.1"
+description = "Database with JSON Serialization"
+authors = [
+    {name = "Tomasik.Christian", email = "Christian.Tomasik@student.htlwrn.ac.at"},
+]
+dependencies = [
+    "msgspec>=0.14.1",
+    "aiosqlite>=0.18.0",
+]
+requires-python = ">=3.10"
