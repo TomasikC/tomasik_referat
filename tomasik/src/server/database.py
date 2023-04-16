@@ -20,13 +20,13 @@ class Database:
     # CRUD
     async def createUser(self, user: User):
         if (await self.getUser(user.uuid)) is None:
-            insertStatement = """INSERT INTO User(id, json)
+            insertStatement = """INSERT INTO User(id, data)
                                  VALUES (?, ?)"""
             await self._db.execute(insertStatement, (str(user.uuid), msgspec.json.encode(user)))
             return user
         else:
             updateStatement = """UPDATE User
-                                 SET json = ?
+                                 SET data = ?
                                  WHERE id = ?"""
             await self._db.execute(updateStatement, (msgspec.json.encode(user), str(user.uuid)))
             return user
@@ -34,7 +34,7 @@ class Database:
 
     async def getUser(self, id: UUID):
         userBytes = None
-        selectStatement = """SELECT json FROM User WHERE id = ?"""
+        selectStatement = """SELECT data FROM User WHERE id = ?"""
         async with self._db.execute(selectStatement, (str(id),)) as cursor:
             async for row in cursor:
                 userBytes = row[0]
@@ -46,7 +46,6 @@ class Database:
         deleteStatement = """DELETE FROM User 
                              WHERE id = ?"""
         await self._db.execute(deleteStatement, (str(id),))
-        await self.printOutDB()
 
     async def getKeys(self):
         keys = []
@@ -60,7 +59,7 @@ class Database:
 
     async def getValues(self):
         values = []
-        selectStatement = """SELECT json FROM User"""
+        selectStatement = """SELECT data FROM User"""
         async with self._db.execute(selectStatement) as cursor:
             async for row in cursor:
                 values += [row[0]]
@@ -70,29 +69,24 @@ class Database:
 
     async def getRecentUsers(self, date: datetime):
         values = []
-        selectStatement = """SELECT json FROM User"""
-        async with self._db.execute(selectStatement) as cursor:
+
+        selectStatement = """SELECT data FROM User WHERE datetime(json_extract(data, '$.last_access')) < ?"""
+        async with self._db.execute(selectStatement, (date, )) as cursor:
             async for row in cursor:
-                if msgspec.json.decode(row[0], type=User).last_access < date:
-                    values += [row[0]]
+                values += [row[0]]
 
         await cursor.close()
         return values
 
     async def getUsersForGroup(self, group):
         values = []
-        selectStatement = """SELECT json FROM User"""
-        async with self._db.execute(selectStatement) as cursor:
+        selectStatement = """SELECT data FROM User 
+                             WHERE EXISTS(SELECT 1 FROM json_each(json_extract(data, '$.groups')) WHERE value = ?)"""
+        async with self._db.execute(selectStatement, (group, )) as cursor:
             async for row in cursor:
-                user = msgspec.json.decode(row[0], type=User)
-                groups = user.groups
-                for userGroup in groups:
-                    if userGroup == group:
-                        values += [row[0]]
-                        break
+                values += [row[0]]
 
         await cursor.close()
-        print(values)
         return values
 
     async def printOutDB(self):

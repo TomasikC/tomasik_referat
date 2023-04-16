@@ -87,10 +87,10 @@ async def main():
     uuidKobi = uuid.uuid4()
 
     await client.put(User(uuidHaris, "Haris", datetime.datetime.now(), {"Mathematik"}))
-    await client.put(User(uuid.uuid4(), "Steven", datetime.datetime.now(), {"Admin"}, "nachos@gmail.com"))
-    await client.put(User(uuid.uuid4(), "Max", datetime.datetime.now(), {"Informatik", "Mathematik"}))
+    await client.put(User(uuid.uuid4(), "Steven", datetime.datetime.now(), {"Admin"}, "nachosgmail.com"))
+    await client.put(User(uuid.uuid4(), "Max", datetime.datetime.now() + datetime.timedelta(days=1), {"Informatik", "Mathematik"}))
     d = datetime.datetime.now()
-    await client.put(User(uuid.uuid4(), "Hogwath", datetime.datetime.now(), {"Informatik", "Mathematik"}))
+    await client.put(User(uuid.uuid4(), "Hogwath", datetime.datetime.now() + datetime.timedelta(days=1), {"Informatik", "Mathematik"}))
     await client.put(User(uuidKobi, "Kobi", datetime.datetime.now()))
     await client.put(User(uuid.uuid4(), "VSOP", datetime.datetime.now(), {"Mathematik"}))
 
@@ -109,7 +109,7 @@ async def main():
         sys.exit()
 
     print("-" * 5 + "Update User" + "-" * 5)
-    newUser = User(uuidHaris, "Haris K", datetime.datetime.now(), {"Mathematik"})
+    newUser = User(uuidHaris, "HarisK", datetime.datetime.now(), {"Mathematik"})
     await client.put(newUser)
     list = await client.list_values()
     for user in list:
@@ -139,8 +139,9 @@ async def main():
     list = await client.list_recently_users(d)
     for user in list:
         userPrint(user)
-    if len(list) != 2:
+    if len(list) != 3:
         print("ERROR RECENTLY USERS")
+        print(list)
         sys.exit()
 
 

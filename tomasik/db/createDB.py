@@ -7,7 +7,7 @@ async def createDB():
     db = await aiosqlite.connect(r"db.sqlite")
     sql_create_projects_table = """CREATE TABLE IF NOT EXISTS User(
                                         id text PRIMARY KEY,
-                                        json text NOT NULL
+                                        data json NOT NULL
                                     );"""
     cursor = await db.execute(sql_create_projects_table)
     await cursor.close()
